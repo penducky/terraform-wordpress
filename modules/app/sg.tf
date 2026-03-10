@@ -1,6 +1,6 @@
 # LOAD BALANCER SG
 resource "aws_security_group" "lb" {
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
   description = "Load balancer security group"
 
   name = "lb-sg"
@@ -38,7 +38,7 @@ resource "aws_vpc_security_group_egress_rule" "lb_to_web" {
 
 # WEB SG
 resource "aws_security_group" "web" {
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
   description = "Web security group"
 
   name = "web-sg"
@@ -77,7 +77,7 @@ resource "aws_vpc_security_group_egress_rule" "web_to_all" {
 
 # DATABASE SG
 resource "aws_security_group" "db" {
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
   description = "db tier security group"
 
   name = "db-sg"
