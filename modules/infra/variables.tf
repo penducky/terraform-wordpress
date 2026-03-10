@@ -12,3 +12,8 @@ variable "private_subnets" {
   description = "Number of private subnets"
   type        = number
 }
+
+variable "db_subnets" {
+  description = "Number of database subnets"
+  type        = number
+}

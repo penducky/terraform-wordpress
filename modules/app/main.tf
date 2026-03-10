@@ -14,71 +14,15 @@ resource "aws_db_instance" "db" {
 
 resource "aws_db_subnet_group" "db" {
   name       = "db"
-  subnet_ids = [var.db0_subnet_id, var.db1_subnet_id]
+  subnet_ids = [for subnet in var.db_subnet : subnet.id]
 
   tags = {
     Name = "tf-wordpress-db-sg"
   }
 }
 
-# resource "aws_instance" "wp" {
-#   ami                         = "ami-0b6c6ebed2801a5cb"
-#   instance_type               = "t3.micro"
-#   associate_public_ip_address = true
-#   subnet_id                   = var.web_subnet_id
-#   vpc_security_group_ids      = [var.web_sg_id]
-#   key_name                    = "wordpress_key"
-#   user_data                   = <<-EOT
-# #!/bin/bash -xe
-
-# sudo apt update -y
-# sudo apt upgrade -y
-
-
-# # Install apache server
-# sudo apt install -y apache2
-
-# # Install PHP
-# sudo apt install -y php
-# sudo apt install -y libapache2-mod-php php-mysql
-
-
-# # Install MySQL Client
-# sudo apt install -y mysql-client
-
-# # Define variable
-# DBName='wordpress'
-# DBUser='admin'
-# DBPassword='password'
-# DBRootPassword='password'
-# DBHost='${aws_db_instance.db.endpoint}'
-
-# # Install WordPress
-# sudo wget http://wordpress.org/latest.tar.gz
-# sudo tar -xvf latest.tar.gz
-# sudo rm latest.tar.gz
-# sudo mv wordpress /var/www/html/wordpress
-# cd /var/www/html/wordpress
-
-# # Update wp-config.php file
-# sudo cp ./wp-config-sample.php ./wp-config.php
-# sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
-# sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
-# sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php   
-# sudo sed -i "s/'localhost'/'$DBHost'/g" wp-config.php   
-
-# # Reboot
-# sudo reboot
-# EOT
-
-#   tags = {
-#     Name = "wordpress-instance"
-#   }
-# }
-
-
-resource "aws_launch_template" "web" {
-  name                                 = "web-lt"
+resource "aws_launch_template" "wordpress" {
+  name                                 = "wordpress-lt"
   image_id                             = "ami-0b6c6ebed2801a5cb"
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t3.micro"
@@ -138,18 +82,43 @@ EOT
   )
 }
 
-resource "aws_autoscaling_group" "web" {
-  name             = "web-asg"
-  max_size         = 3
-  min_size         = 1
-  desired_capacity = 2
-  force_delete     = true
-  vpc_zone_identifier = [var.web_subnet_id]
+resource "aws_autoscaling_group" "app" {
+  name                = "app-asg"
+  max_size            = 3
+  min_size            = 1
+  desired_capacity    = 2
+  force_delete        = true
+  vpc_zone_identifier = [for subnet in var.private_subnet : subnet.id]
 
   launch_template {
-    id = aws_launch_template.web.id
-    version = "$Latest"    
+    id      = aws_launch_template.wordpress.id
+    version = "$Latest"
   }
 
+  target_group_arns = [aws_lb_target_group.lb.arn]
+}
 
+resource "aws_lb" "lb" {
+  name               = "tf-wordpress-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [var.lb_sg_id]
+  subnets            = [for subnet in var.public_subnet : subnet.id]
+}
+
+resource "aws_lb_target_group" "lb" {
+  name     = "tf-example-lb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+}
+
+resource "aws_lb_listener" "lb" {
+  load_balancer_arn = aws_lb.lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lb.arn
+  }
 }
