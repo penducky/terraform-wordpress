@@ -37,49 +37,8 @@ resource "aws_launch_template" "wordpress" {
     security_groups             = [var.web_sg_id]
   }
 
-  user_data = base64encode(<<-EOT
-#!/bin/bash -xe
-
-sudo apt update -y
-sudo apt upgrade -y
-
-
-# Install apache server
-sudo apt install -y apache2
-
-# Install PHP
-sudo apt install -y php
-sudo apt install -y libapache2-mod-php php-mysql
-
-
-# Install MySQL Client
-sudo apt install -y mysql-client
-
-# Define variable
-DBName='wordpress'
-DBUser='admin'
-DBPassword='password'
-DBRootPassword='password'
-DBHost='${aws_db_instance.db.endpoint}'
-
-# Install WordPress
-sudo wget http://wordpress.org/latest.tar.gz
-sudo tar -xvf latest.tar.gz
-sudo rm latest.tar.gz
-sudo mv wordpress /var/www/html/wordpress
-cd /var/www/html/wordpress
-
-# Update wp-config.php file
-sudo cp ./wp-config-sample.php ./wp-config.php
-sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
-sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
-sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php   
-sudo sed -i "s/'localhost'/'$DBHost'/g" wp-config.php   
-
-# Reboot
-sudo reboot
-EOT
-  )
+  user_data = base64encode(templatefile("${path.module}/user_data.tftpl",
+  { db_endpoint = aws_db_instance.db.endpoint }))
 }
 
 resource "aws_autoscaling_group" "app" {
