@@ -1,3 +1,4 @@
+# DATABASE
 resource "aws_db_instance" "db" {
   allocated_storage      = 20
   db_name                = "wordpress"
@@ -21,9 +22,10 @@ resource "aws_db_subnet_group" "db" {
   }
 }
 
+# AUTOSCALING GROUP
 resource "aws_launch_template" "wordpress" {
   name                                 = "${var.project_name}-lt"
-  image_id                             = "ami-0b6c6ebed2801a5cb"
+  image_id                             = var.ami_id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t3.micro"
   key_name                             = "wordpress_key"
@@ -43,9 +45,9 @@ resource "aws_launch_template" "wordpress" {
 
 resource "aws_autoscaling_group" "web" {
   name                = "${var.project_name}-web-asg"
-  max_size            = 3
-  min_size            = 1
-  desired_capacity    = 2
+  max_size            = var.max_size
+  min_size            = var.min_size
+  desired_capacity    = var.desired_capacity
   force_delete        = true
   vpc_zone_identifier = [for subnet in var.private_subnet : subnet.id]
 
@@ -57,6 +59,7 @@ resource "aws_autoscaling_group" "web" {
   target_group_arns = [aws_lb_target_group.lb.arn]
 }
 
+# LOAD BALANCER
 resource "aws_lb" "lb" {
   name               = "${var.project_name}-lb"
   internal           = false
@@ -81,3 +84,18 @@ resource "aws_lb_listener" "lb" {
     target_group_arn = aws_lb_target_group.lb.arn
   }
 }
+
+# # ELASTIC FILE SYSTEM
+# resource "aws_efs_file_system" "efs" {
+#   creation_token = "my-product"
+
+#   lifecycle_policy {
+#     transition_to_ia = "AFTER_30_DAYS"
+#   }
+# }
+
+# resource "aws_efs_mount_target" "alpha" {
+#   for_each = var.private_subnet
+#   file_system_id = aws_efs_file_system.efs.id
+#   subnet_id      = each.value.id
+# }

@@ -3,6 +3,26 @@ variable "project_name" {
   type        = string
 }
 
+variable "public_subnet" {
+  description = "List of the public subnet object"
+  type        = map(any)
+}
+
+variable "private_subnet" {
+  description = "List of the web subnet object"
+  type        = map(any)
+}
+
+variable "db_subnet" {
+  description = "List of the db subnet object"
+  type        = map(any)
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC"
+  type        = string
+}
+
 variable "db_username" {
   description = "Username for the MySQL database"
   type        = string
@@ -15,22 +35,22 @@ variable "db_password" {
   sensitive   = true
 }
 
-variable "public_subnet" {
-  description = "List of the public subnet ID"
-  type        = map(any)
+variable "ami_id" {
+  description = "ID of the AMI for the instance"
+  type = string
 }
 
-variable "private_subnet" {
-  description = "List of the web subnet ID"
-  type        = map(any)
+variable "max_size" {
+  description = "Maximum amount of instance allowed for autoscaling group"
+  type        = number
 }
 
-variable "db_subnet" {
-  description = "List of the db subnet ID"
-  type        = map(any)
+variable "min_size" {
+  description = "Minimum amount of instance allowed for autoscaling group"
+  type        = number
 }
 
-variable "vpc_id" {
-  description = "ID of the VPC"
-  type        = string
+variable "desired_capacity" {
+  description = "Desired amount of instance allowed for autoscaling group"
+  type        = number
 }

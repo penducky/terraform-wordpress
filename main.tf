@@ -22,12 +22,16 @@ module "infra" {
 }
 
 module "app" {
-  source         = "./modules/app"
-  project_name   = local.project_name
-  public_subnet  = module.infra.public_subnet
-  private_subnet = module.infra.private_subnet
-  db_subnet      = module.infra.db_subnet
-  db_username    = var.db_username
-  db_password    = var.db_password
-  vpc_id         = module.infra.vpc.id
+  source           = "./modules/app"
+  project_name     = local.project_name
+  public_subnet    = module.infra.public_subnet
+  private_subnet   = module.infra.private_subnet
+  db_subnet        = module.infra.db_subnet
+  vpc_id           = module.infra.vpc.id
+  db_username      = var.db_username
+  db_password      = var.db_password
+  ami_id           = "ami-098c3c16b581d024d"
+  max_size         = 2
+  min_size         = 1
+  desired_capacity = 2
 }
