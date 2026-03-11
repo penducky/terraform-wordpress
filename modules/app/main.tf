@@ -84,18 +84,3 @@ resource "aws_lb_listener" "lb" {
     target_group_arn = aws_lb_target_group.lb.arn
   }
 }
-
-# # ELASTIC FILE SYSTEM
-# resource "aws_efs_file_system" "efs" {
-#   creation_token = "my-product"
-
-#   lifecycle_policy {
-#     transition_to_ia = "AFTER_30_DAYS"
-#   }
-# }
-
-# resource "aws_efs_mount_target" "alpha" {
-#   for_each = var.private_subnet
-#   file_system_id = aws_efs_file_system.efs.id
-#   subnet_id      = each.value.id
-# }
