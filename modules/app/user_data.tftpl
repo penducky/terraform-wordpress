@@ -23,10 +23,10 @@ sudo mv wordpress /var/www/html/wordpress
 cd /var/www/html/wordpress
 
 # Define variable
-DBName='wordpress'
-DBUser='admin'
-DBPassword='password'
-DBRootPassword='password'
+DBName='${db_name}'
+DBUser='${db_username}'
+DBPassword='${db_password}'
+DBRootPassword='${db_password}'
 DBHost='${db_endpoint}'
 
 # Update wp-config.php file
@@ -34,7 +34,14 @@ sudo cp ./wp-config-sample.php ./wp-config.php
 sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
 sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
 sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php   
-sudo sed -i "s/'localhost'/'$DBHost'/g" wp-config.php   
+sudo sed -i "s/'localhost'/'$DBHost'/g" wp-config.php
+
+sudo sed -i "/\/\* Add any custom values between this line and the \"stop editing\" line. \*\//a \
+define( 'WP_HOME', 'https://${subdomain}.${domain}/wordpress' );\n\
+define( 'WP_SITEURL', 'https://${subdomain}.${domain}/wordpress' );\n\
+if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {\n\
+    \$_SERVER['HTTPS'] = 'on';\n\
+}\n" wp-config.php
 
 sudo chown -R www-data:www-data /var/www/html/wordpress
 

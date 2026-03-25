@@ -35,6 +35,11 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "db_name" {
+  description = "Name of the database"
+  type        = string
+}
+
 variable "ami_id" {
   description = "ID of the AMI for the instance"
   type        = string

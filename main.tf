@@ -43,6 +43,7 @@ module "app" {
   vpc_id           = module.infra.vpc.id
   db_username      = var.db_username
   db_password      = var.db_password
+  db_name          = "wordpress"
   ami_id           = "ami-0b6c6ebed2801a5cb"
   key_pair         = "wordpress_key2"
   max_size         = 2
