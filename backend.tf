@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket       = "penducky-login-state-bucket"
+    bucket       = "penducky-wordpress-terraform-state-bucket"
     key          = "tf-infra/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true

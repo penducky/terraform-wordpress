@@ -15,19 +15,19 @@ sudo apt install -y libapache2-mod-php php-mysql
 # Install MySQL Client
 sudo apt install -y mysql-client
 
-# Define variable
-DBName='wordpress'
-DBUser='admin'
-DBPassword='password'
-DBRootPassword='password'
-DBHost='${db_endpoint}'
-
 # Install WordPress
 sudo wget http://wordpress.org/latest.tar.gz
 sudo tar -xvf latest.tar.gz
 sudo rm latest.tar.gz
 sudo mv wordpress /var/www/html/wordpress
 cd /var/www/html/wordpress
+
+# Define variable
+DBName='wordpress'
+DBUser='admin'
+DBPassword='password'
+DBRootPassword='password'
+DBHost='${db_endpoint}'
 
 # Update wp-config.php file
 sudo cp ./wp-config-sample.php ./wp-config.php

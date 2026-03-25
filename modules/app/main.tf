@@ -1,3 +1,4 @@
+# DATABASE
 resource "aws_db_instance" "db" {
   allocated_storage      = 20
   db_name                = "wordpress"
@@ -21,12 +22,13 @@ resource "aws_db_subnet_group" "db" {
   }
 }
 
+# AUTOSCALING GROUP
 resource "aws_launch_template" "wordpress" {
   name                                 = "${var.project_name}-lt"
-  image_id                             = "ami-0b6c6ebed2801a5cb"
+  image_id                             = var.ami_id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t3.micro"
-  key_name                             = "wordpress_key"
+  key_name                             = var.key_pair
 
   lifecycle {
     create_before_destroy = true
@@ -43,9 +45,9 @@ resource "aws_launch_template" "wordpress" {
 
 resource "aws_autoscaling_group" "web" {
   name                = "${var.project_name}-web-asg"
-  max_size            = 3
-  min_size            = 1
-  desired_capacity    = 2
+  max_size            = var.max_size
+  min_size            = var.min_size
+  desired_capacity    = var.desired_capacity
   force_delete        = true
   vpc_zone_identifier = [for subnet in var.private_subnet : subnet.id]
 
@@ -54,10 +56,11 @@ resource "aws_autoscaling_group" "web" {
     version = "$Latest"
   }
 
-  target_group_arns = [aws_lb_target_group.lb.arn]
+  target_group_arns = [aws_lb_target_group.app.arn]
 }
 
-resource "aws_lb" "lb" {
+# LOAD BALANCER
+resource "aws_lb" "app" {
   name               = "${var.project_name}-lb"
   internal           = false
   load_balancer_type = "application"
@@ -65,19 +68,36 @@ resource "aws_lb" "lb" {
   subnets            = [for subnet in var.public_subnet : subnet.id]
 }
 
-resource "aws_lb_target_group" "lb" {
+resource "aws_lb_target_group" "app" {
   name     = "${var.project_name}-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 }
 
-resource "aws_lb_listener" "lb" {
-  load_balancer_arn = aws_lb.lb.arn
+resource "aws_lb_listener" "app" {
+  load_balancer_arn = aws_lb.app.arn
   port              = "80"
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.lb.arn
+    target_group_arn = aws_lb_target_group.app.arn
+  }
+}
+
+# ROUTE53
+data "aws_route53_zone" "main" {
+  name = "penducky.click"
+}
+
+resource "aws_route53_record" "wordpress" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "${var.subdomain}.${var.root_domain}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.app.dns_name
+    zone_id                = aws_lb.app.zone_id
+    evaluate_target_health = true
   }
 }
