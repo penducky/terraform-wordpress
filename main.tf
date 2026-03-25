@@ -9,10 +9,10 @@ provider "aws" {
 }
 
 module "infra" {
-  source           = "./modules/infra"
-  vpc_cidr         = "10.0.0.0/16"
-  public_subnets   = 2
-  private_subnets  = 2
+  source          = "./modules/infra"
+  vpc_cidr        = "10.0.0.0/16"
+  public_subnets  = 2
+  private_subnets = 2
 }
 
 module "app" {
@@ -22,6 +22,6 @@ module "app" {
   db0_subnet_id = module.infra.db_subnet["db0"].id
   db1_subnet_id = module.infra.db_subnet["db1"].id
   db_sg_id      = module.infra.db_sg.id
-  db_username = var.db_username
-  db_password = var.db_password
+  db_username   = var.db_username
+  db_password   = var.db_password
 }
