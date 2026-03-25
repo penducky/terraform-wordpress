@@ -1,3 +1,8 @@
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
+
 variable "db_username" {
   description = "Username for the MySQL database"
   type        = string
@@ -23,20 +28,6 @@ variable "private_subnet" {
 variable "db_subnet" {
   description = "List of the db subnet ID"
   type        = map(any)
-}
-
-variable "lb_sg_id" {
-  description = "ID of the load balancer security group"
-  type        = string
-}
-variable "web_sg_id" {
-  description = "ID of the web security group"
-  type        = string
-}
-
-variable "db_sg_id" {
-  description = "ID of the database security group"
-  type        = string
 }
 
 variable "vpc_id" {

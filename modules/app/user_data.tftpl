@@ -1,83 +1,42 @@
-resource "aws_db_instance" "db" {
-  allocated_storage      = 20
-  db_name                = "wordpress"
-  db_subnet_group_name   = aws_db_subnet_group.db.name
-  availability_zone      = "us-east-1a"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t4g.micro"
-  username               = var.db_username
-  password               = var.db_password
-  skip_final_snapshot    = true
-  vpc_security_group_ids = [var.db_sg_id]
-}
+#!/bin/bash -xe
 
-resource "aws_db_subnet_group" "db" {
-  name       = "db"
-  subnet_ids = [for subnet in var.db_subnet : subnet.id]
+sudo apt update -y
+sudo apt upgrade -y
 
-  tags = {
-    Name = "tf-wordpress-db-sg"
-  }
-}
 
-resource "aws_launch_template" "wordpress" {
-  name                                 = "wordpress-lt"
-  image_id                             = "ami-0b6c6ebed2801a5cb"
-  instance_initiated_shutdown_behavior = "terminate"
-  instance_type                        = "t3.micro"
-  key_name                             = "wordpress_key"
+# Install apache server
+sudo apt install -y apache2
 
-  lifecycle {
-    create_before_destroy = true
-  }
+# Install PHP
+sudo apt install -y php
+sudo apt install -y libapache2-mod-php php-mysql
 
-  network_interfaces {
-    associate_public_ip_address = true
-    security_groups             = [var.web_sg_id]
-  }
 
-  user_data = base64encode(templatefile("${path.module}/user_data.tftpl",
-  { db_endpoint = aws_db_instance.db.endpoint }))
-}
+# Install MySQL Client
+sudo apt install -y mysql-client
 
-resource "aws_autoscaling_group" "app" {
-  name                = "app-asg"
-  max_size            = 3
-  min_size            = 1
-  desired_capacity    = 2
-  force_delete        = true
-  vpc_zone_identifier = [for subnet in var.private_subnet : subnet.id]
+# Define variable
+DBName='wordpress'
+DBUser='admin'
+DBPassword='password'
+DBRootPassword='password'
+DBHost='${db_endpoint}'
 
-  launch_template {
-    id      = aws_launch_template.wordpress.id
-    version = "$Latest"
-  }
+# Install WordPress
+sudo wget http://wordpress.org/latest.tar.gz
+sudo tar -xvf latest.tar.gz
+sudo rm latest.tar.gz
+sudo mv wordpress /var/www/html/wordpress
+cd /var/www/html/wordpress
 
-  target_group_arns = [aws_lb_target_group.lb.arn]
-}
+# Update wp-config.php file
+sudo cp ./wp-config-sample.php ./wp-config.php
+sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
+sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
+sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php   
+sudo sed -i "s/'localhost'/'$DBHost'/g" wp-config.php   
 
-resource "aws_lb" "lb" {
-  name               = "tf-wordpress-lb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [var.lb_sg_id]
-  subnets            = [for subnet in var.public_subnet : subnet.id]
-}
+sudo chown -R www-data:www-data /var/www/html/wordpress
 
-resource "aws_lb_target_group" "lb" {
-  name     = "tf-example-lb-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
-}
-
-resource "aws_lb_listener" "lb" {
-  load_balancer_arn = aws_lb.lb.arn
-  port              = "80"
-  protocol          = "HTTP"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.lb.arn
-  }
-}
+# Reboot
+sudo reboot

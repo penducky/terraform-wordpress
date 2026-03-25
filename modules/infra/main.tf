@@ -11,14 +11,14 @@ resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "tf-wordpress-vpc"
+    Name = "${var.project_name}-vpc"
   }
 }
 
 # INTERNET GATEWAY
 resource "aws_internet_gateway" "main" {
   tags = {
-    Name = "tf-wordpress-igw"
+    Name = "${var.project_name}-igw"
   }
 }
 
@@ -35,7 +35,7 @@ resource "aws_subnet" "public" {
   availability_zone = local.azs[each.value % length(local.azs)]
 
   tags = {
-    Name = "tf-wordpress-subnets-${each.key}"
+    Name = "${var.project_name}-subnets-${each.key}"
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "private" {
   availability_zone = local.azs[each.value % length(local.azs)]
 
   tags = {
-    Name = "tf-wordpress-subnets-${each.key}"
+    Name = "${var.project_name}-subnets-${each.key}"
   }
 }
 
@@ -57,7 +57,7 @@ resource "aws_subnet" "db" {
   availability_zone = local.azs[each.value % length(local.azs)]
 
   tags = {
-    Name = "tf-wordpress-subnets-${each.key}"
+    Name = "${var.project_name}-subnets-${each.key}"
   }
 }
 
@@ -66,7 +66,7 @@ resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = {
-    Name = "nat-gateway-eip"
+    Name = "${var.project_name}-nat_gw-eip"
   }
 }
 
@@ -76,7 +76,7 @@ resource "aws_nat_gateway" "web" {
   subnet_id     = aws_subnet.public["public0"].id
 
   tags = {
-    Name = "nat-gw"
+    Name = "${var.project_name}-nat_gw"
   }
 
   depends_on = [aws_internet_gateway.main]
@@ -92,7 +92,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "tf-wordpress-public-rt"
+    Name = "${var.project_name}-public-rt"
   }
 }
 
@@ -111,7 +111,7 @@ resource "aws_route_table" "private" {
   }
 
   tags = {
-    Name = "tf-wordpress-private-rt"
+    Name = "${var.project_name}-private-rt"
   }
 }
 

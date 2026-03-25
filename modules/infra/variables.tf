@@ -1,3 +1,8 @@
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
+
 variable "vpc_cidr" {
   description = "CIDR Block of the VPC"
   type        = string

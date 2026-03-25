@@ -9,7 +9,7 @@ resource "aws_db_instance" "db" {
   username               = var.db_username
   password               = var.db_password
   skip_final_snapshot    = true
-  vpc_security_group_ids = [var.db_sg_id]
+  vpc_security_group_ids = [aws_security_group.db.id]
 }
 
 resource "aws_db_subnet_group" "db" {
@@ -17,12 +17,12 @@ resource "aws_db_subnet_group" "db" {
   subnet_ids = [for subnet in var.db_subnet : subnet.id]
 
   tags = {
-    Name = "tf-wordpress-db-sg"
+    Name = "${var.project_name}-db-sg"
   }
 }
 
 resource "aws_launch_template" "wordpress" {
-  name                                 = "wordpress-lt"
+  name                                 = "${var.project_name}-lt"
   image_id                             = "ami-0b6c6ebed2801a5cb"
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t3.micro"
@@ -34,15 +34,15 @@ resource "aws_launch_template" "wordpress" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [var.web_sg_id]
+    security_groups             = [aws_security_group.web.id]
   }
 
   user_data = base64encode(templatefile("${path.module}/user_data.tftpl",
   { db_endpoint = aws_db_instance.db.endpoint }))
 }
 
-resource "aws_autoscaling_group" "app" {
-  name                = "app-asg"
+resource "aws_autoscaling_group" "web" {
+  name                = "${var.project_name}-web-asg"
   max_size            = 3
   min_size            = 1
   desired_capacity    = 2
@@ -58,15 +58,15 @@ resource "aws_autoscaling_group" "app" {
 }
 
 resource "aws_lb" "lb" {
-  name               = "tf-wordpress-lb"
+  name               = "${var.project_name}-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [var.lb_sg_id]
+  security_groups    = [aws_security_group.lb.id]
   subnets            = [for subnet in var.public_subnet : subnet.id]
 }
 
 resource "aws_lb_target_group" "lb" {
-  name     = "tf-example-lb-tg"
+  name     = "${var.project_name}-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
