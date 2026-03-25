@@ -1,6 +1,6 @@
 # Terraform WordPress Infrastructure ☁️
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/penducky/terraform-wordpress/terraform_plan.yml?style=flat-square&label=Build&logo=github)
+![Build Status](https://img.shields.io/github/actions/workflow/status/penducky/terraform-wordpress/terraform_plan.yaml?style=flat-square&label=Build&logo=github)
 ![AWS](https://img.shields.io/badge/Hosted_on-AWS-FF9900?style=flat-square&logo=amazon-aws&logoColor=yellow)
 ![Cost](https://img.shields.io/badge/Cost-Standard_Rates-orange?style=flat-square)
 
@@ -11,7 +11,7 @@ A fully provisioned, highly available WordPress architecture engineered on AWS u
 <img src=".github/assets/wordpress-site.png" alt="Wordpress Site" width="700">
 </div>
 
-### 🔗 [View Live Site](http://wordpress.penducky.click/wordpress)
+### 🔗 [View Live Site](https://wordpress.penducky.click/wordpress)
 
 ---
 
