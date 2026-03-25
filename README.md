@@ -11,7 +11,7 @@ A fully provisioned, highly available WordPress architecture engineered on AWS u
 <img src=".github/assets/wordpress-site.png" alt="Wordpress Site" width="700">
 </div>
 
-### 🔗 [View Live Site](wordpress.penducky.click/wordpress)
+### 🔗 [View Live Site](http://wordpress.penducky.click/wordpress)
 
 ---
 
@@ -22,7 +22,7 @@ This project was made to demonstrate hands-on IaC skills using Terraform and AWS
 ## 🏗️ Architecture & Engineering Decisions
 The infrastructure is designed for high availability, security, and automated scaling.
 
-[Architecture Diagram](.github/assets/wordpress-infrastructure-diagram.png)
+![Architecture Diagram](.github/assets/wordpress-infrastructure-diagram.png)
 
 *Resources marked with grey color is not defined in the code due to the cost reason. Instead, it is listed as a future improvements.
 
