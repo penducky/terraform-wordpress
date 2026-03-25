@@ -14,15 +14,15 @@ resource "aws_db_instance" "db" {
 
 resource "aws_db_subnet_group" "db" {
   name       = "db"
-  subnet_ids = [var.db0_subnet_id, var.db1_subnet_id]
+  subnet_ids = [for subnet in var.db_subnet : subnet.id]
 
   tags = {
     Name = "tf-wordpress-db-sg"
   }
 }
 
-resource "aws_launch_template" "web" {
-  name                                 = "web-lt"
+resource "aws_launch_template" "wordpress" {
+  name                                 = "wordpress-lt"
   image_id                             = "ami-0b6c6ebed2801a5cb"
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t3.micro"
@@ -82,14 +82,14 @@ EOT
   )
 }
 
-resource "aws_autoscaling_group" "web" {
-  name             = "web-asg"
-  max_size         = 3
-  min_size         = 1
-  desired_capacity = 2
-  force_delete     = true
-  vpc_zone_identifier = [var.web_subnet_id]
-
+resource "aws_autoscaling_group" "app" {
+  name                = "app-asg"
+  max_size            = 3
+  min_size            = 1
+  desired_capacity    = 2
+  force_delete        = true
+  vpc_zone_identifier = [for subnet in var.private_subnet : subnet.id]
+  
   launch_template {
     id = aws_launch_template.web.id
     version = "$Latest"    
