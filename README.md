@@ -1,17 +1,20 @@
-# Terraform WordPress Infrastructure ☁️
+# Terraform-Managed Three-Tier WordPress Architecture ☁️
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/penducky/terraform-wordpress/terraform_plan.yaml?style=flat-square&label=Build&logo=github)
 ![AWS](https://img.shields.io/badge/Hosted_on-AWS-FF9900?style=flat-square&logo=amazon-aws&logoColor=yellow)
 ![Cost](https://img.shields.io/badge/Cost-Standard_Rates-orange?style=flat-square)
 
-A fully provisioned, highly available WordPress architecture engineered on AWS using Terraform for Infrastructure as Code (IaC).
+A fully provisioned, highly available Three-Tier WordPress architecture engineered on AWS using Terraform for Infrastructure as Code (IaC).
 
----
 <div align="center">
-<img src=".github/assets/wordpress-site.png" alt="Wordpress Site" width="700">
+<img src=".github/assets/wordpress-site.png" alt="Wordpress Site" width="1080">
 </div>
 
 ### 🔗 [View Live Site](https://wordpress.penducky.click/wordpress)
+![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fwordpress.penducky.click)
+
+Due to budget constraints, the website is not hosted 24/7.
+
 
 ---
 
