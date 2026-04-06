@@ -1,16 +1,33 @@
 # DATABASE
+data "aws_db_snapshot" "latest" {
+  count                  = var.restore_from_snapshot ? 1 : 0
+  db_instance_identifier = var.db_name
+  most_recent            = true
+}
+
 resource "aws_db_instance" "db" {
-  allocated_storage      = 20
-  db_name                = var.db_name
-  db_subnet_group_name   = aws_db_subnet_group.db.name
-  availability_zone      = "us-east-1a"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t4g.micro"
-  username               = var.db_username
-  password               = var.db_password
-  skip_final_snapshot    = true
-  vpc_security_group_ids = [aws_security_group.db.id]
+  identifier                = var.db_name
+  db_name                   = var.db_name
+  allocated_storage         = 20
+  db_subnet_group_name      = aws_db_subnet_group.db.name
+  availability_zone         = "us-east-1a"
+  engine                    = "mysql"
+  engine_version            = "8.0"
+  instance_class            = "db.t4g.micro"
+  username                  = var.db_username
+  password                  = var.db_password
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "${var.db_snapshot_name}-${formatdate("YYYYMMDDhhmmss", timestamp())}"
+  snapshot_identifier       = var.restore_from_snapshot ? data.aws_db_snapshot.latest[0].id : null
+  vpc_security_group_ids    = [aws_security_group.db.id]
+  lifecycle {
+    ignore_changes = [
+      final_snapshot_identifier,
+      snapshot_identifier,
+      username,
+      password
+    ]
+  }
 }
 
 resource "aws_db_subnet_group" "db" {

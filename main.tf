@@ -35,20 +35,22 @@ module "infra" {
 }
 
 module "app" {
-  source           = "./modules/app"
-  project_name     = local.project_name
-  public_subnet    = module.infra.public_subnet
-  private_subnet   = module.infra.private_subnet
-  db_subnet        = module.infra.db_subnet
-  vpc_id           = module.infra.vpc.id
-  db_username      = var.db_username
-  db_password      = var.db_password
-  db_name          = "wordpress"
-  ami_id           = "ami-0b6c6ebed2801a5cb"
-  key_pair         = "wordpress_key2"
-  max_size         = 2
-  min_size         = 1
-  desired_capacity = 1
-  root_domain      = "penducky.click"
-  subdomain        = "wordpress"
+  source                = "./modules/app"
+  project_name          = local.project_name
+  public_subnet         = module.infra.public_subnet
+  private_subnet        = module.infra.private_subnet
+  db_subnet             = module.infra.db_subnet
+  vpc_id                = module.infra.vpc.id
+  db_username           = var.db_username
+  db_password           = var.db_password
+  restore_from_snapshot = true
+  db_name               = "wordpress"
+  db_snapshot_name      = "wordpress-db-snapshot"
+  ami_id                = "ami-0b6c6ebed2801a5cb"
+  key_pair              = "wordpress_key2"
+  max_size              = 2
+  min_size              = 1
+  desired_capacity      = 1
+  root_domain           = "penducky.click"
+  subdomain             = "wordpress"
 }

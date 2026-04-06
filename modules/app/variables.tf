@@ -40,6 +40,17 @@ variable "db_name" {
   type        = string
 }
 
+variable "restore_from_snapshot" {
+  description = "Set to false for the initial creation, true for all subsequent applies."
+  type        = bool
+  default     = true
+}
+
+variable "db_snapshot_name" {
+  description = "Name of the database snapshot"
+  type        = string
+}
+
 variable "ami_id" {
   description = "ID of the AMI for the instance"
   type        = string
